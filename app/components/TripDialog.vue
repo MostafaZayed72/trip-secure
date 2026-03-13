@@ -9,7 +9,7 @@
         <!-- Header -->
         <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-slate-900 sticky top-0 z-10 transition-colors">
           <div>
-            <h2 class="text-xl font-bold text-slate-900 dark:text-white">إنشاء رحلة جديدة</h2>
+            <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ editData ? 'تعديل الرحلة' : 'إنشاء رحلة جديدة' }}</h2>
             <p class="text-slate-500 dark:text-slate-400 text-sm font-medium">الخطوة {{ currentStep }} من 5: {{ stepTitles[currentStep-1] }}</p>
           </div>
           <button @click="$emit('close')" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
@@ -176,7 +176,7 @@
             @click="handleNext"
             class="px-8 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-primary-200 dark:shadow-none flex items-center gap-2"
           >
-            {{ currentStep === 5 ? 'إتمام الرحلة' : 'التالي' }}
+            {{ currentStep === 5 ? (editData ? 'حفظ التعديلات' : 'إتمام الرحلة') : 'التالي' }}
           </button>
         </div>
       </div>
@@ -188,8 +188,8 @@
 import { useStorage } from '@vueuse/core'
 import { X, MapPin, Navigation, Plus } from 'lucide-vue-next'
 
-const props = defineProps(['show'])
-const emit = defineEmits(['close', 'created'])
+const props = defineProps(['show', 'editData'])
+const emit = defineEmits(['close', 'created', 'updated'])
 
 const currentStep = ref(1)
 const trips = useStorage('trips-data', [])
@@ -250,19 +250,41 @@ const handleNext = () => {
   if (currentStep.value < 5) {
     currentStep.value++
   } else {
-    const newTrip = {
-      id: Date.now(),
-      ...form,
-      createdAt: new Date().toISOString(),
-      status: 'pending',
-      date: new Date(form.startTime || Date.now()).toLocaleDateString('ar-EG')
+    if (props.editData) {
+      // Update Mode
+      const index = trips.value.findIndex(t => t.id === props.editData.id)
+      if (index !== -1) {
+        trips.value[index] = { 
+          ...trips.value[index], 
+          ...form,
+          date: new Date(form.startTime || Date.now()).toLocaleDateString('ar-EG')
+        }
+        emit('updated', trips.value[index])
+      }
+    } else {
+      // Create Mode
+      const newTrip = {
+        id: Date.now(),
+        ...form,
+        createdAt: new Date().toISOString(),
+        status: 'pending',
+        date: new Date(form.startTime || Date.now()).toLocaleDateString('ar-EG')
+      }
+      trips.value.push(newTrip)
+      emit('created', newTrip)
     }
-    
-    trips.value.push(newTrip)
-    emit('created', newTrip)
     resetForm()
   }
 }
+
+watch(() => props.editData, (newVal) => {
+  if (newVal) {
+    Object.assign(form, newVal)
+    currentStep.value = 1
+  } else {
+    resetForm()
+  }
+}, { immediate: true })
 </script>
 
 <style scoped>

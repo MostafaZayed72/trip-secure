@@ -6,7 +6,7 @@
         <p class="text-slate-500 dark:text-slate-400 mt-1">إدارة وتتبع جميع الرحلات المنشأة</p>
       </div>
       <button 
-        @click="showCreateDialog = true"
+        @click="openCreateDialog"
         class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold transition-all active:scale-95 flex items-center gap-2 shadow-lg shadow-primary-200 dark:shadow-none"
       >
         <Plus class="w-5 h-5" />
@@ -48,7 +48,7 @@
               <th class="px-6 py-4">السيارة</th>
               <th class="px-6 py-4">السائق</th>
               <th class="px-6 py-4">الحالة</th>
-              <th class="px-6 py-4"></th>
+              <th class="px-6 py-4">الإجراءات</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-800 font-medium">
@@ -73,14 +73,26 @@
                 {{ getDriverName(trip) }}
               </td>
               <td class="px-6 py-4">
-                <span :class="getStatusClass(trip.status)" class="px-2.5 py-1 rounded-full text-xs font-bold ring-1 ring-inset">
-                  {{ getStatusText(trip.status) }}
-                </span>
+                <select 
+                  :value="trip.status"
+                  @change="updateStatus(trip.id, $event.target.value)"
+                  class="px-2.5 py-1 rounded-full text-xs font-bold ring-1 ring-inset outline-none transition-all cursor-pointer bg-transparent"
+                  :class="getStatusClass(trip.status)"
+                >
+                  <option value="pending" class="text-slate-900 dark:text-white bg-white dark:bg-slate-800">قيد الانتظار</option>
+                  <option value="active" class="text-slate-900 dark:text-white bg-white dark:bg-slate-800">نشطة</option>
+                  <option value="completed" class="text-slate-900 dark:text-white bg-white dark:bg-slate-800">مكتملة</option>
+                </select>
               </td>
-              <td class="px-6 py-4 text-left">
-                <button @click="deleteTrip(trip.id)" class="p-2 text-slate-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all opacity-0 group-hover:opacity-100">
-                  <Trash2 class="w-5 h-5" />
-                </button>
+              <td class="px-6 py-4">
+                <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all">
+                  <button @click="openEditDialog(trip)" class="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-all" title="تعديل">
+                    <Edit2 class="w-5 h-5" />
+                  </button>
+                  <button @click="deleteTrip(trip.id)" class="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all" title="حذف">
+                    <Trash2 class="w-5 h-5" />
+                  </button>
+                </div>
               </td>
             </tr>
             <tr v-if="filteredTrips.length === 0">
@@ -97,17 +109,24 @@
       </div>
     </div>
 
-    <!-- Create Trip Dialog -->
-    <TripDialog :show="showCreateDialog" @close="showCreateDialog = false" @created="showCreateDialog = false" />
+    <!-- Trip Dialog (Shared Create/Edit) -->
+    <TripDialog 
+      :show="showDialog" 
+      :editData="selectedTrip"
+      @close="closeDialog" 
+      @created="closeDialog"
+      @updated="closeDialog"
+    />
   </div>
 </template>
 
 <script setup>
 import { useStorage } from '@vueuse/core'
-import { Plus, Search, Trash2, ArrowLeft, Route } from 'lucide-vue-next'
+import { Plus, Search, Trash2, Edit2, ArrowLeft, Route } from 'lucide-vue-next'
 
 const trips = useStorage('trips-data', [])
-const showCreateDialog = ref(false)
+const showDialog = ref(false)
+const selectedTrip = ref(null)
 const searchQuery = ref('')
 const filterStatus = ref('all')
 
@@ -126,16 +145,40 @@ const staticDrivers = [
 
 const filteredTrips = computed(() => {
   return trips.value.filter(trip => {
+    const searchLow = searchQuery.value.toLowerCase()
     const matchesSearch = 
-      trip.company.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      trip.start.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      trip.end.toLowerCase().includes(searchQuery.value.toLowerCase())
+      trip.company.toLowerCase().includes(searchLow) ||
+      trip.start.toLowerCase().includes(searchLow) ||
+      trip.end.toLowerCase().includes(searchLow) ||
+      getDriverName(trip).toLowerCase().includes(searchLow)
     
     const matchesStatus = filterStatus.value === 'all' || trip.status === filterStatus.value
     
     return matchesSearch && matchesStatus
   }).reverse()
 })
+
+const openCreateDialog = () => {
+  selectedTrip.value = null
+  showDialog.value = true
+}
+
+const openEditDialog = (trip) => {
+  selectedTrip.value = { ...trip }
+  showDialog.value = true
+}
+
+const closeDialog = () => {
+  showDialog.value = false
+  selectedTrip.value = null
+}
+
+const updateStatus = (id, newStatus) => {
+  const index = trips.value.findIndex(t => t.id === id)
+  if (index !== -1) {
+    trips.value[index].status = newStatus
+  }
+}
 
 const getCarName = (trip) => {
   if (trip.carId === 'new') return trip.newCar?.model || 'سيارة جديدة'
@@ -159,11 +202,11 @@ const getStatusText = (status) => {
 
 const getStatusClass = (status) => {
   const classes = {
-    active: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20',
-    completed: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 ring-blue-600/20',
-    pending: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-amber-600/20'
+    active: 'bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 ring-green-600/20 dark:ring-green-400/20',
+    completed: 'bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 ring-blue-600/20 dark:ring-blue-400/20',
+    pending: 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 ring-amber-600/20 dark:ring-amber-400/20'
   }
-  return classes[status] || 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-slate-600/20'
+  return classes[status] || 'bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 ring-slate-600/20 dark:ring-slate-400/20'
 }
 
 const deleteTrip = (id) => {
