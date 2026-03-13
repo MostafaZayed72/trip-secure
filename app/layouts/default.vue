@@ -14,17 +14,24 @@
         </div>
       </div>
 
-      <nav class="flex-1 px-4 py-4 space-y-1">
-        <NuxtLink 
-          v-for="item in navItems" 
-          :key="item.path"
-          :to="item.path"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all group"
-          :class="$route.path === item.path ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'"
-        >
-          <component :is="item.icon" class="w-5 h-5" :class="$route.path === item.path ? 'text-primary-600 dark:text-primary-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'" />
-          <span class="font-bold">{{ item.name }}</span>
-        </NuxtLink>
+      <nav class="flex-1 px-4 py-4 space-y-6 overflow-y-auto custom-scrollbar">
+        <div v-for="section in navSections" :key="section.header">
+          <h3 v-if="section.header" class="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
+            {{ section.header }}
+          </h3>
+          <div class="space-y-1">
+            <template v-for="item in section.items" :key="item.path">
+              <NuxtLink 
+                :to="item.path"
+                class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all group"
+                :class="$route.path === item.path ? 'bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white'"
+              >
+                <component :is="item.icon" class="w-5 h-5" :class="$route.path === item.path ? 'text-primary-600 dark:text-primary-400' : 'text-slate-400 group-hover:text-slate-600 dark:group-hover:text-slate-300'" />
+                <span class="font-bold text-sm">{{ item.name }}</span>
+              </NuxtLink>
+            </template>
+          </div>
+        </div>
       </nav>
 
       <div class="p-4 border-t border-slate-100 dark:border-slate-800 space-y-2">
@@ -78,7 +85,17 @@
 
 <script setup>
 import { useStorage, useDark, useToggle } from '@vueuse/core'
-import { LayoutDashboard, Route, LogOut, Menu, Sun, Moon } from 'lucide-vue-next'
+import { 
+  LayoutDashboard, 
+  Route, 
+  LogOut, 
+  Menu, 
+  Sun, 
+  Moon,
+  Send,
+  Folder,
+  Mail
+} from 'lucide-vue-next'
 
 const sidebarOpen = ref(false)
 const auth = useStorage('user-auth', null)
@@ -87,9 +104,33 @@ const router = useRouter()
 const isDark = useDark()
 const toggleDark = useToggle(isDark)
 
-const navItems = [
-  { name: 'الرئيسية', path: '/', icon: LayoutDashboard },
-  { name: 'الرحلات', path: '/trips', icon: Route },
+const navSections = [
+  {
+    header: '',
+    items: [
+      { name: 'الرئيسية', path: '/', icon: LayoutDashboard },
+      { name: 'الرحلات', path: '/trips', icon: Route },
+    ]
+  },
+  {
+    header: 'إدارة الطلبات',
+    items: [
+      { name: 'طلبات ثقيلة', path: '/requests/heavy', icon: Send },
+      { name: 'طلبات خفيفة', path: '/requests/light', icon: Send },
+      { name: 'طلبات في انتظار الموافقة', path: '/requests/pending-approval', icon: Send },
+      { name: 'طلبات متأخرة', path: '/requests/pending-late', icon: Send },
+      { name: 'طلبات غير عادية (موافقة أولى)', path: '/requests/pending-first-approval-abnormal', icon: Send },
+      { name: 'طلبات في انتظار الإلغاء', path: '/requests/pending-cancellation', icon: Send },
+    ]
+  },
+  {
+    header: 'متابعة الطلبات',
+    items: [
+      { name: 'طلبات قيد الموافقة', path: '/management/pending-approval', icon: Folder },
+      { name: 'طلبات عالية المخاطر', path: '/management/pending-high-risk', icon: Mail },
+      { name: 'طلبات HSE', path: '/management/pending-hse', icon: Mail },
+    ]
+  }
 ]
 
 const handleLogout = () => {
@@ -101,5 +142,16 @@ const handleLogout = () => {
 <style scoped>
 .router-link-active {
   @apply bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-200 dark:bg-slate-700 rounded-full;
 }
 </style>
