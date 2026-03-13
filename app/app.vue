@@ -1,5 +1,5 @@
 <template>
-  <div :dir="rtl ? 'rtl' : 'ltr'">
+  <div dir="ltr">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -10,12 +10,11 @@
 import { useDark } from '@vueuse/core'
 
 const isDark = useDark()
-const rtl = ref(true) // Always RTL as per user request
 
 useHead({
   htmlAttrs: {
-    dir: 'rtl',
-    lang: 'ar',
+    dir: 'ltr',
+    lang: 'en',
     class: computed(() => isDark.value ? 'dark' : '')
   }
 })

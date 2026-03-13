@@ -1,9 +1,9 @@
 <template>
   <div class="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300 flex">
-    <!-- Sidebar (Moved to Right) -->
+    <!-- Sidebar (Moved to Left) -->
     <aside 
-      class="w-64 bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 flex flex-col fixed inset-y-0 right-0 h-full z-20 transition-transform duration-300"
-      :class="sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'"
+      class="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col fixed inset-y-0 left-0 h-full z-20 transition-transform duration-300"
+      :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
     >
       <div class="p-6">
         <div class="flex items-center gap-3">
@@ -42,7 +42,7 @@
         >
           <Sun v-if="isDark" class="w-5 h-5" />
           <Moon v-else class="w-5 h-5" />
-          <span class="font-bold">{{ isDark ? 'الوضع النهاري' : 'الوضع الليلي' }}</span>
+          <span class="font-bold">{{ isDark ? 'Light Mode' : 'Dark Mode' }}</span>
         </button>
 
         <!-- Logout -->
@@ -51,13 +51,13 @@
           class="flex items-center gap-3 w-full px-4 py-3 text-slate-600 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-all group"
         >
           <LogOut class="w-5 h-5 text-slate-400 group-hover:text-red-500" />
-          <span class="font-bold text-sm">تسجيل الخروج</span>
+          <span class="font-bold text-sm">Logout</span>
         </button>
       </div>
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 lg:mr-64 p-8 min-w-0">
+    <main class="flex-1 lg:ml-64 p-8 min-w-0">
       <!-- Mobile Header -->
       <header class="flex lg:hidden items-center justify-between mb-8">
         <div class="flex items-center gap-2">
@@ -108,27 +108,27 @@ const navSections = [
   {
     header: '',
     items: [
-      { name: 'الرئيسية', path: '/', icon: LayoutDashboard },
-      { name: 'الرحلات', path: '/trips', icon: Route },
+      { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+      { name: 'Trips', path: '/trips', icon: Route },
     ]
   },
   {
-    header: 'إدارة الطلبات',
+    header: 'MANAGE REQUESTS',
     items: [
-      { name: 'طلبات ثقيلة', path: '/requests/heavy', icon: Send },
-      { name: 'طلبات خفيفة', path: '/requests/light', icon: Send },
-      { name: 'طلبات في انتظار الموافقة', path: '/requests/pending-approval', icon: Send },
-      { name: 'طلبات متأخرة', path: '/requests/pending-late', icon: Send },
-      { name: 'طلبات غير عادية (موافقة أولى)', path: '/requests/pending-first-approval-abnormal', icon: Send },
-      { name: 'طلبات في انتظار الإلغاء', path: '/requests/pending-cancellation', icon: Send },
+      { name: 'Heavy Requests', path: '/requests/heavy', icon: Send },
+      { name: 'Light Requests', path: '/requests/light', icon: Send },
+      { name: 'Pending Approval Requests', path: '/requests/pending-approval', icon: Send },
+      { name: 'Pending Late Requests', path: '/requests/pending-late', icon: Send },
+      { name: 'Pending First Approval Abnormal Requests', path: '/requests/pending-first-approval-abnormal', icon: Send },
+      { name: 'Pending Cancellation', path: '/requests/pending-cancellation', icon: Send },
     ]
   },
   {
-    header: 'متابعة الطلبات',
+    header: 'REQUEST MANAGEMENT',
     items: [
-      { name: 'طلبات قيد الموافقة', path: '/management/pending-approval', icon: Folder },
-      { name: 'طلبات عالية المخاطر', path: '/management/pending-high-risk', icon: Mail },
-      { name: 'طلبات HSE', path: '/management/pending-hse', icon: Mail },
+      { name: 'Pending Approval Requests', path: '/management/pending-approval', icon: Folder },
+      { name: 'Pending High-Risk Approval Requests', path: '/management/pending-high-risk', icon: Mail },
+      { name: 'Pending HSE Approval Requests', path: '/management/pending-hse', icon: Mail },
     ]
   }
 ]

@@ -2,15 +2,15 @@
   <div class="space-y-8">
     <div class="flex items-center justify-between">
       <div>
-        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">مرحباً بك، {{ user?.username || 'أدمن' }}</h1>
-        <p class="text-slate-500 dark:text-slate-400 mt-1">إليك نظرة سريعة على نشاط الرحلات اليوم</p>
+        <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Welcome, {{ user?.username || 'Admin' }}</h1>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Here is a quick look at today's trip activity</p>
       </div>
       <button 
         @click="showCreateDialog = true"
         class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-primary-200 dark:shadow-primary-900/20 transition-all active:scale-95 flex items-center gap-2"
       >
         <Plus class="w-5 h-5" />
-        إنشاء رحلة جديدة
+        Create New Trip
       </button>
     </div>
 
@@ -32,25 +32,25 @@
     <!-- Recent Trips -->
     <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 shadow-sm overflow-hidden">
       <div class="p-6 border-b border-slate-50 dark:border-slate-800 flex items-center justify-between">
-        <h2 class="text-lg font-bold text-slate-900 dark:text-white">أحدث الرحلات</h2>
-        <NuxtLink to="/trips" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 text-sm font-medium">عرض الكل</NuxtLink>
+        <h2 class="text-lg font-bold text-slate-900 dark:text-white">Recent Trips</h2>
+        <NuxtLink to="/trips" class="text-primary-600 dark:text-primary-400 hover:text-primary-700 text-sm font-medium">View All</NuxtLink>
       </div>
       <div class="overflow-x-auto">
-        <table class="w-full text-right">
+        <table class="w-full text-left">
           <thead>
             <tr class="bg-slate-50/50 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 text-sm uppercase tracking-wider">
-              <th class="px-6 py-4 font-bold">الشركة</th>
-              <th class="px-6 py-4 font-bold">المسار</th>
-              <th class="px-6 py-4 font-bold">المسافة</th>
-              <th class="px-6 py-4 font-bold">التاريخ</th>
-              <th class="px-6 py-4 font-bold">الحالة</th>
+              <th class="px-6 py-4 font-bold">Company</th>
+              <th class="px-6 py-4 font-bold">Route</th>
+              <th class="px-6 py-4 font-bold">Distance</th>
+              <th class="px-6 py-4 font-bold">Date</th>
+              <th class="px-6 py-4 font-bold">Status</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50 dark:divide-slate-800">
             <tr v-for="trip in recentTrips" :key="trip.id" class="hover:bg-slate-50/80 dark:hover:bg-slate-800/80 transition-colors">
               <td class="px-6 py-4 font-bold text-slate-900 dark:text-white">{{ trip.company }}</td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ trip.start }} ← {{ trip.end }}</td>
-              <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ trip.distance }} كم</td>
+              <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ trip.start }} → {{ trip.end }}</td>
+              <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ trip.distance }} km</td>
               <td class="px-6 py-4 text-slate-600 dark:text-slate-300">{{ trip.date }}</td>
               <td class="px-6 py-4">
                 <span :class="getStatusClass(trip.status)" class="px-3 py-1 rounded-full text-xs font-bold ring-1 ring-inset">
@@ -59,7 +59,7 @@
               </td>
             </tr>
             <tr v-if="recentTrips.length === 0">
-              <td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-bold">لا توجد رحلات مسجلة بعد</td>
+              <td colspan="5" class="px-6 py-12 text-center text-slate-400 dark:text-slate-500 font-bold">No trips recorded yet</td>
             </tr>
           </tbody>
         </table>
@@ -84,10 +84,10 @@ const recentTrips = computed(() => {
 })
 
 const stats = computed(() => [
-  { label: 'إجمالي الرحلات', value: trips.value.length, icon: Route, color: 'primary' },
-  { label: 'رحلات نشطة', value: trips.value.filter(t => t.status === 'active').length, icon: Calendar, color: 'blue' },
-  { label: 'السيارات المتاحة', value: 8, icon: Truck, color: 'sky' },
-  { label: 'السائقين', value: 12, icon: Users, color: 'indigo' },
+  { label: 'Total Trips', value: trips.value.length, icon: Route, color: 'primary' },
+  { label: 'Active Trips', value: trips.value.filter(t => t.status === 'active').length, icon: Calendar, color: 'blue' },
+  { label: 'Available Vehicles', value: 8, icon: Truck, color: 'sky' },
+  { label: 'Drivers', value: 12, icon: Users, color: 'indigo' },
 ])
 
 const handleTripCreated = () => {
@@ -95,7 +95,7 @@ const handleTripCreated = () => {
 }
 
 const getStatusText = (status) => {
-  const texts = { active: 'نشطة', completed: 'مكتملة', pending: 'قيد الانتظار' }
+  const texts = { active: 'Active', completed: 'Completed', pending: 'Pending' }
   return texts[status] || status
 }
 

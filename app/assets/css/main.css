@@ -9,7 +9,7 @@
 }
 
 body {
-  font-family: 'Tajawal', sans-serif;
+  font-family: 'Outfit', sans-serif;
   @apply bg-slate-50 text-slate-900 transition-colors duration-300;
 }
 
@@ -27,16 +27,6 @@ body {
   opacity: 0;
 }
 
-/* RTL Navigation Tweaks */
-[dir="rtl"] .ml-auto {
-  margin-left: initial;
-  margin-right: auto;
-}
-
-[dir="rtl"] .mr-auto {
-  margin-right: initial;
-  margin-left: auto;
-}
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
